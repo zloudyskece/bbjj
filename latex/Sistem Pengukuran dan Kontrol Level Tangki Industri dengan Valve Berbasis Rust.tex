@@ -1,0 +1,658 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[indonesian]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{array}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+
+% --- KONFIGURASI GEOMETRY ---
+\geometry{top=3cm, bottom=3cm, left=3cm, right=3cm}
+
+% --- DEFINISI WARNA ---
+\definecolor{boxblue}{RGB}{235, 245, 255}
+\definecolor{borderblue}{RGB}{0, 51, 102}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{rustkeyword}{rgb}{0.1, 0.1, 0.9}
+\definecolor{ruststring}{rgb}{0.1, 0.5, 0.1}
+
+% --- SETUP LISTING RUST ---
+\lstdefinelanguage{Rust}{
+    keywords={struct, impl, fn, let, mut, match, if, else, loop, break, return, String, self, f32, use, pub},
+    keywordstyle=\color{rustkeyword}\bfseries,
+    ndkeywords={Self},
+    ndkeywordstyle=\color{rustkeyword}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=true,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{codegray}\itshape,
+    stringstyle=\color{ruststring},
+    morestring=[b]",
+}
+
+\lstset{
+    language=Rust,
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4
+}
+
+\begin{document}
+
+% ============================================================================
+% COVER PAGE
+% ============================================================================
+\begin{titlepage}
+    \centering
+    
+    % Judul Utama
+    {\LARGE \textbf{EVALUASI TENGAH SEMESTER}} \\[0.2cm]
+    {\LARGE \textbf{(ETS)}} \\[0.5cm]
+    
+    {\Large \textbf{Algoritma dan Pemrograman}} \\[0.8cm]
+    
+    {\large Program Studi Teknik Instrumentasi} \\[0.2cm]
+    {\large Semester Genap 2025/2026} \\[1.5cm]
+    
+    % Kotak Judul Project (PBL)
+    \begin{tcolorbox}[
+        colback=boxblue, 
+        colframe=borderblue, 
+        width=0.9\textwidth, 
+        arc=5pt, 
+        boxrule=1pt,
+        center title,
+        halign=center
+    ]
+        \centering
+        \textbf{\large PROJECT BASED LEARNING (PBL)} \\[0.3cm]
+        \textbf{ Sistem  Pengukuran dan Kontrol Level Tangki Industri dengan Valve \\ Berbasis Rust}
+    \end{tcolorbox}
+    
+    \vfill 
+    
+    % Detail Pengampu dan Waktu
+    \begin{flushleft}
+    \hspace{2.5cm} 
+    \begin{tabular}{ll}
+        \textbf{Dosen Pengampu}  & : Ahmad Radhy, S.Si., M.Si. \\
+        \textbf{Durasi Pengerjaan} & : 1 Pekan \\
+        \textbf{Bahasa Pemrograman} & : Rust \\
+        \textbf{Metode Penilaian}  & : Project + Ujian Lisan \\
+    \end{tabular}
+    \end{flushleft}
+    
+    \vspace{1.5cm}
+    
+    % Data Mahasiswa
+    \begin{flushleft}
+    \hspace{2.5cm}
+    \begin{tabular}{ll}
+        \textbf{Kelompok :} & 17 \\[0.3cm] 
+        \textbf{Mahasiswa 1 :} & Benedycta Eka Putra  \\[0.1cm]
+        \textbf{NRP :} & 2042251055  \\[0.3cm]
+        \textbf{Mahasiswa 2 :} & Bagas Andika Firmansyah  \\[0.1cm]
+        \textbf{NRP :} & 2042251057  \\
+    \end{tabular}
+    \end{flushleft}
+    
+    \vfill
+    
+    {\large Departemen Teknik Instrumentasi} \\[0.1cm]
+    {\large Institut Teknologi Sepuluh Nopember} \\[1cm]
+    
+    \textbf{1} 
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% ============================================================================
+% ISI LAPORAN
+% ============================================================================
+
+\section{Pendahuluan}
+Perkembangan teknologi otomasi industri saat ini semakin meningkat, terutama pada sistem monitoring dan pengendalian proses di berbagai sektor industri seperti pengolahan air, minyak dan gas, makanan dan minuman, serta manufaktur. Salah satu sistem yang sangat penting dalam dunia industri adalah sistem monitoring level tangki. Sistem ini digunakan untuk memantau ketinggian fluida di dalam tangki agar proses penyimpanan dan distribusi cairan dapat berjalan dengan aman, efisien, dan terkendali.
+
+Pada proses industri, level cairan yang terlalu rendah dapat menyebabkan pompa bekerja tanpa fluida (dry running) sehingga mengakibatkan kerusakan peralatan. Sebaliknya, level cairan yang terlalu tinggi dapat menyebabkan overflow yang berpotensi menimbulkan kerugian produksi maupun bahaya keselamatan kerja. Oleh karena itu, diperlukan suatu sistem monitoring yang mampu memberikan informasi kondisi tangki secara real-time serta mampu melakukan pengendalian sederhana terhadap aktuator seperti valve dan pompa berdasarkan kondisi level cairan.
+
+Kami memilih bahasa pemrograman Rust dalam project ini karena memiliki performa tinggi, keamanan memori yang baik, serta kemampuan pengolahan sistem yang stabil untuk pengembangan aplikasi monitoring industri. Rust juga mendukung paradigma pemrograman modern seperti Object Oriented Programming (OOP) dan modular programming sehingga mempermudah pengembangan sistem yang terstruktur dan mudah dipelihara.
+
+Project ini mengimplementasikan sistem monitoring level tangki berbasis console menggunakan bahasa Rust dengan konsep pemrograman berbasis objek melalui struktur (struct) dan implementasi fungsi (impl). Sistem dapat menerima input parameter tangki, membaca nilai sensor level, menghitung volume cairan, menentukan status kondisi tangki berdasarkan batas Low Level (LL) dan High High (HH), serta mengontrol status inlet valve, outlet valve, dan pompa secara otomatis.
+
+Melalui project ini diharapkan dapat memberikan pemahaman mengenai penerapan dasar sistem otomasi industri menggunakan simulasi perangkat lunak serta menjadi media pembelajaran mengenai integrasi logika kontrol, monitoring proses, dan pemrograman Rust dalam bidang instrumentasi dan kontrol industri.
+
+\section{Studi Kasus Instrumentasi Sistem Monitoring Level Tangki}
+
+Pada sebuah industri pengolahan air digunakan sebuah tangki penyimpanan air proses untuk mendukung kebutuhan produksi. Tangki tersebut memiliki kapasitas maksimum sebesar 10.000 liter dengan tinggi total 5 meter. Untuk menjaga kestabilan proses dan mencegah terjadinya overflow maupun kekosongan tangki, digunakan sistem monitoring level berbasis sensor level.
+
+Sistem monitoring bekerja dengan membaca tinggi cairan di dalam tangki menggunakan sensor level dalam satuan meter. Data pembacaan sensor kemudian diproses oleh program untuk menentukan volume cairan, persentase isi tangki, serta kondisi operasional tangki berdasarkan batas Low Level (LL) dan High High (HH).
+
+Parameter instrumentasi yang digunakan pada studi kasus ini ditunjukkan pada Tabel berikut.
+
+\begin{table}[h]
+\centering
+\caption{Parameter Instrumentasi Tangki}
+\begin{tabular}{|l|l|}
+\hline
+Parameter & Nilai \\ \hline
+Kapasitas Maksimum Tangki & 10.000 Liter \\ \hline
+Tinggi Tangki & 5 Meter \\ \hline
+Low Level (LL) & 1 Meter \\ \hline
+High High (HH) & 4.5 Meter \\ \hline
+Pembacaan Sensor & 3 Meter \\ \hline
+\end{tabular}
+\end{table}
+
+Dalam sistem ini, sensor level membaca tinggi cairan sebesar 3 meter. Karena operator industri lebih mudah memahami kapasitas fluida dalam satuan volume, maka dilakukan konversi level cairan dari meter menjadi liter menggunakan persamaan berikut:
+
+\begin{equation}
+\text{Volume} = \left( \frac{\text{Level}}{\text{Tinggi Tangki}} \right) \times \text{Kapasitas Maksimum}
+\end{equation}
+
+Substitusi nilai:
+
+\begin{equation}
+\text{Volume} = \left( \frac{3}{5} \right) \times 10000
+\end{equation}
+
+Sehingga diperoleh hasil:
+
+\begin{equation}
+\text{Volume} = 6000 \text{ Liter}
+\end{equation}
+
+Artinya, ketika sensor membaca level cairan setinggi 3 meter, volume air di dalam tangki adalah sebesar 6000 liter.
+
+Selain volume, sistem juga menghitung persentase isi tangki menggunakan persamaan:
+
+\begin{equation}
+\text{Persentase} = \left( \frac{\text{Level}}{\text{Tinggi Tangki}} \right) \times 100\%
+\end{equation}
+
+Substitusi nilai:
+
+\begin{equation}
+\text{Persentase} = \left( \frac{3}{5} \right) \times 100\%
+\end{equation}
+
+Maka diperoleh:
+
+\begin{equation}
+\text{Persentase} = 60\%
+\end{equation}
+
+Berdasarkan logika kontrol instrumentasi, sistem menggunakan dua batas alarm utama yaitu Low Level (LL) dan High High (HH). Jika level cairan berada di bawah LL maka inlet valve akan terbuka dan pompa akan aktif untuk mengisi tangki. Sebaliknya, jika level cairan mencapai HH maka outlet valve akan terbuka untuk mencegah overflow.
+
+Pada studi kasus ini, level sensor berada pada kondisi:
+
+\begin{equation}
+1 < 3 < 4.5
+\end{equation}
+
+Karena nilai sensor masih berada di antara batas LL dan HH, maka kondisi tangki dinyatakan NORMAL. Status aktuator sistem adalah:
+
+\begin{itemize}
+    \item Inlet Valve : CLOSE
+    \item Pump : OFF
+    \item Outlet Valve : CLOSE
+\end{itemize}
+
+Melalui studi kasus ini dapat dipahami bahwa sistem monitoring level tangki mampu melakukan pembacaan level cairan, konversi satuan meter ke liter, perhitungan persentase isi tangki, serta simulasi logika kontrol instrumentasi secara otomatis menggunakan bahasa pemrograman Rust.
+
+\section{Algoritma Program}
+
+Algoritma pada sistem monitoring level tangki dibuat untuk melakukan pemantauan level cairan di dalam tangki berdasarkan parameter yang dimasukkan oleh pengguna. Program ini dikembangkan menggunakan bahasa pemrograman Rust dengan pendekatan \textit{Object Oriented Programming} (OOP) menggunakan \textit{struct} dan \textit{method}. Sistem bekerja dengan membaca nilai sensor level, kemudian menentukan kondisi tangki berdasarkan batas \textit{Low Low} (LL) dan \textit{High High} (HH). Selain itu, sistem juga mengontrol status inlet valve, outlet valve, dan pompa secara otomatis sesuai kondisi level cairan.
+
+Tahap awal program dimulai dengan menampilkan judul aplikasi "Sistem Monitoring Level Tangki" kemudian program masuk ke menu utama. Pada menu utama terdapat tiga pilihan yaitu input parameter dan sensor, melihat dashboard, dan keluar dari program. Pengguna diminta memasukkan pilihan menu sesuai kebutuhan sistem.
+
+Jika pengguna memilih menu input data, maka program akan meminta beberapa parameter penting yaitu kapasitas tangki dalam liter, tinggi tangki dalam meter, batas \textit{Low Low} (LL), batas \textit{High High} (HH), dan pembacaan sensor level saat ini. Seluruh data yang dimasukkan akan divalidasi untuk memastikan bahwa nilai yang diberikan berupa angka dan tidak bernilai negatif. Apabila data tidak valid maka program akan menampilkan pesan kesalahan dan meminta pengguna menginput ulang data yang benar.
+
+Setelah data valid, program akan membuat objek \texttt{TankMonitoring} berdasarkan parameter yang telah dimasukkan. Selanjutnya dilakukan proses perhitungan volume cairan di dalam tangki menggunakan persamaan:
+
+$$\text{Volume} = \left(\frac{\text{Reading Sensor}}{\text{Tinggi}}\right) \times \text{Kapasitas}$$
+
+Selain itu, program juga menghitung persentase level cairan menggunakan persamaan:
+
+$$\text{Persentase} = \left(\frac{\text{Reading Sensor}}{\text{Tinggi}}\right) \times 100\%$$
+
+Hasil pembacaan sensor kemudian dibandingkan dengan batas LL dan HH untuk menentukan kondisi tangki. Jika nilai sensor lebih kecil atau sama dengan LL maka kondisi tangki dinyatakan \textit{Low Low} dan alarm aktif. Pada kondisi ini inlet valve dibuka, pompa dinyalakan, dan outlet valve ditutup untuk mengisi tangki. Jika nilai sensor berada di antara LL dan HH maka kondisi tangki dianggap normal sehingga inlet valve, pompa, dan outlet valve berada pada kondisi tertutup atau tidak aktif. Sedangkan apabila nilai sensor lebih besar atau sama dengan HH maka kondisi tangki dinyatakan \textit{High High}. Pada kondisi ini alarm aktif, inlet valve ditutup, pompa dimatikan, dan outlet valve dibuka untuk mengurangi level cairan di dalam tangki.
+
+Setelah seluruh proses selesai dilakukan, program menampilkan dashboard monitoring yang berisi parameter tangki, level sensor, volume cairan, persentase level, kondisi tangki, serta status inlet valve, pompa, dan outlet valve. Dashboard ini memudahkan pengguna untuk memonitor kondisi tangki secara real-time melalui tampilan terminal. Setelah dashboard ditampilkan, program kembali ke menu utama sehingga pengguna dapat melakukan input data kembali atau keluar dari aplikasi.
+
+\subsection{Flowchart Sistem}
+
+Flowchart sistem monitoring level tangki digunakan untuk menggambarkan alur kerja program secara visual mulai dari program dijalankan hingga program selesai. Flowchart ini membantu dalam memahami urutan proses, pengambilan keputusan, dan hubungan antar bagian program secara sistematis.
+
+Pada tahap awal, flowchart dimulai dengan proses \textit{Start} kemudian program menampilkan judul aplikasi sistem monitoring level tangki. Setelah itu program menampilkan menu utama yang terdiri dari tiga pilihan yaitu input parameter dan sensor, melihat dashboard, dan keluar dari program. Pengguna kemudian memasukkan pilihan menu sesuai kebutuhan.
+
+Jika pengguna memilih menu pertama, maka program akan masuk ke proses input data tangki dan sensor. Selanjutnya dilakukan validasi input untuk memastikan bahwa data berupa angka valid dan tidak bernilai negatif. Jika data tidak valid maka sistem menampilkan pesan kesalahan dan pengguna diminta melakukan input ulang.
+
+Apabila data valid maka program membuat objek monitoring tangki dan melanjutkan proses perhitungan volume serta persentase level cairan. Setelah proses perhitungan selesai, sistem melakukan pengecekan kondisi tangki berdasarkan nilai sensor terhadap batas LL dan HH.
+
+Jika sensor berada pada kondisi LL maka sistem memberikan status \textit{Low Low} dengan alarm aktif, inlet valve terbuka, pompa aktif, dan outlet valve tertutup. Jika sensor berada pada kondisi normal maka seluruh aktuator berada dalam kondisi normal. Sedangkan jika sensor mencapai HH maka sistem memberikan status \textit{High High} dengan alarm aktif, inlet valve tertutup, pompa mati, dan outlet valve terbuka.
+
+Setelah kondisi ditentukan, sistem menampilkan dashboard monitoring yang berisi seluruh informasi parameter dan status sistem. Program kemudian kembali ke menu utama sehingga pengguna dapat melakukan monitoring kembali atau keluar dari program.
+
+Jika pengguna memilih menu kedua tanpa melakukan input data terlebih dahulu, maka sistem menampilkan pesan bahwa pengguna harus menginput data terlebih dahulu pada menu pertama. Sedangkan jika pengguna memilih menu ketiga maka sistem menampilkan pesan selesai dan program berakhir pada proses \textit{End}.
+
+\subsection{Penjelasan Flowchart}
+
+Berikut merupakan penjelasan dari simbol dan proses yang terdapat pada flowchart sistem monitoring level tangki:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{gambar/flowchart.jpeg}
+    \caption{Flowchart Sistem Monitoring Level Tangki}
+    \label{fig:flowchart-monitoring-tangki}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{Start} \\
+    Menunjukkan awal program dijalankan.
+
+    \item \textbf{Tampilkan Judul Program} \\
+    Program menampilkan judul sistem monitoring level tangki pada terminal.
+
+    \item \textbf{Tampilkan Menu} \\
+    Sistem menampilkan menu utama yang berisi pilihan input data, dashboard, dan keluar.
+
+    \item \textbf{Input Pilihan User} \\
+    Pengguna memasukkan pilihan menu dari angka 1 sampai 3.
+
+    \item \textbf{Input Data Tangki} \\
+    Pengguna memasukkan parameter kapasitas tangki, tinggi tangki, batas LL, batas HH, dan nilai sensor.
+
+    \item \textbf{Validasi Input} \\
+    Sistem memeriksa apakah input berupa angka valid dan tidak bernilai negatif.
+
+    \item \textbf{Proses Perhitungan} \\
+    Sistem menghitung volume cairan dan persentase level tangki berdasarkan pembacaan sensor.
+
+    \item \textbf{Cek Kondisi Tangki} \\
+    Sistem membandingkan nilai sensor terhadap batas LL dan HH untuk menentukan kondisi tangki.
+
+    \item \textbf{Tampilkan Dashboard} \\
+    Sistem menampilkan hasil monitoring berupa level cairan, volume, persentase, kondisi tangki, dan status aktuator.
+
+    \item \textbf{End} \\
+    Menunjukkan akhir dari program.
+\end{enumerate}
+
+\section{KONSEP PEMROGRAMAN BERBASIS OBJEK (OOP)}
+
+\subsection{Pengertian Object Oriented Programming (OOP)}
+
+\textit{Object Oriented Programming} (OOP) atau pemrograman berbasis objek merupakan paradigma pemrograman yang menggunakan objek sebagai dasar utama dalam pengembangan program. Objek digunakan untuk merepresentasikan data serta fungsi yang saling berhubungan di dalam suatu sistem. Konsep OOP bertujuan untuk mempermudah pengelolaan program agar lebih terstruktur, mudah dikembangkan, mudah dipelihara, dan dapat digunakan kembali.
+
+Pada project sistem monitoring level tangki ini, konsep OOP diterapkan menggunakan bahasa pemrograman Rust dengan memanfaatkan \textit{struct} dan \textit{implementation block} (\texttt{impl}). Struktur program dibuat agar data tangki dan seluruh proses monitoring berada di dalam satu objek sehingga sistem menjadi lebih modular dan efisien.
+
+\subsection{Penerapan OOP pada Sistem Monitoring Level Tangki}
+
+Pada program sistem monitoring level tangki, konsep OOP digunakan untuk mengelompokkan seluruh parameter dan fungsi monitoring ke dalam objek \texttt{TankMonitoring}. Objek ini menyimpan data kapasitas tangki, tinggi tangki, batas \textit{Low Low} (LL), batas \textit{High High} (HH), dan pembacaan sensor level.
+
+Berikut merupakan deklarasi \textit{struct} yang digunakan pada program:
+
+\begin{verbatim}
+struct TankMonitoring {
+    max_capacity: f32,
+    height: f32,
+    ll: f32,
+    hh: f32,
+    sensor_reading: f32,
+}
+\end{verbatim}
+
+Struct tersebut berfungsi sebagai blueprint atau rancangan objek yang menyimpan seluruh data monitoring tangki. Setiap variabel memiliki tipe data \texttt{f32} karena digunakan untuk menyimpan nilai desimal. 
+
+\subsection{Konsep Encapsulation}
+\textit{Encapsulation} merupakan konsep pembungkusan data dan method ke dalam satu objek. Pada program ini seluruh parameter tangki dan fungsi monitoring dibungkus di dalam struct \texttt{TankMonitoring}. Hal ini membuat data dan proses monitoring menjadi terorganisir dengan baik.
+
+Method yang terdapat pada objek antara lain:
+
+\begin{itemize}
+    \item \texttt{new()} untuk membuat objek baru.
+    \item \texttt{meter\_to\_liter()} untuk mengubah level meter menjadi volume liter.
+    \item \texttt{get\_inlet\_status()} untuk menentukan status inlet valve dan pompa.
+    \item \texttt{get\_outlet\_status()} untuk menentukan status outlet valve.
+    \item \texttt{get\_condition()} untuk menentukan kondisi tangki.
+    \item \texttt{display()} untuk menampilkan dashboard monitoring.
+\end{itemize}
+
+Seluruh method tersebut berada di dalam blok \texttt{impl TankMonitoring}. 
+
+\subsection{Konsep Constructor}
+
+Constructor merupakan fungsi khusus yang digunakan untuk membuat objek baru. Pada Rust constructor dibuat menggunakan method \texttt{new()}.
+
+Berikut constructor yang digunakan pada project:
+
+\begin{verbatim}
+fn new(
+    max_capacity: f32,
+    height: f32,
+    ll: f32,
+    hh: f32,
+    sensor_reading: f32
+) -> Self {
+    TankMonitoring {
+        max_capacity,
+        height,
+        ll,
+        hh,
+        sensor_reading,
+    }
+}
+\end{verbatim}
+
+Constructor tersebut digunakan untuk menginisialisasi seluruh data tangki ketika objek dibuat. 
+
+\subsection{Keuntungan Penggunaan OOP pada Project}
+
+Penerapan konsep OOP pada sistem monitoring level tangki memberikan beberapa keuntungan, yaitu:
+
+\begin{enumerate}
+    \item Program menjadi lebih terstruktur dan rapi.
+    
+    \item Data dan fungsi monitoring tersimpan dalam satu objek sehingga mudah dikelola.
+    
+    \item Program lebih mudah dikembangkan apabila ingin menambahkan fitur baru seperti alarm otomatis atau integrasi sensor IoT.
+    
+    \item Method dapat digunakan kembali tanpa perlu menulis kode berulang.
+    
+    \item Mempermudah proses debugging dan maintenance program.
+\end{enumerate}
+
+Dengan penerapan konsep OOP, sistem monitoring level tangki menjadi lebih modular, efisien, dan mudah dipahami dalam proses pengembangan perangkat lunak instrumentasi industri.
+
+\section{Implementasi Komputasi Numerik}
+Komputasi numerik digunakan untuk mengolah data mentah sensor:
+\begin{itemize}
+    \item \textbf{Koreksi Linear:} Menggunakan penambahan bias secara konstan untuk mendapatkan nilai riil.
+    \item \textbf{Konversi Skala:} Melakukan pemetaan (\textit{mapping}) nilai linear dari domain meter (0 - $h$) ke domain volume (0 - $V_{max}$).
+\end{itemize}
+
+\newpage
+\section{Penjelasan Program Rust}
+
+\subsection{Latar Belakang}
+Program ini merupakan simulasi sistem monitoring level tangki industri yang dibuat menggunakan bahasa pemrograman Rust. Sistem ini dirancang untuk memantau kapasitas air, memberikan peringatan visual saat kondisi kritis (\textit{Low Low} atau \textit{High High}), serta mengontrol status katup (\textit{valve}) dan pompa secara otomatis berdasarkan pembacaan sensor.
+
+\subsection{Kode Sumber (Source Code)}
+Berikut adalah implementasi lengkap program dalam Rust:
+
+\begin{lstlisting}[caption=Implementasi Lengkap Sistem Monitoring Tangki dalam Rust]
+use std::io;
+use std::io::Write;
+
+// ============================================
+// STRUCT - Pemrograman Berbasis Objek
+// ============================================
+
+struct TankMonitoring {
+    max_capacity: f32,      // Kapasitas maksimal (Liter)
+    height: f32,            // Tinggi tangki (Meter)
+    ll: f32,                // Low Level (Meter)
+    hh: f32,                // High High (Meter)
+    sensor_reading: f32,    // Pembacaan sensor (Meter)
+}
+
+impl TankMonitoring {
+    // Konstruktor
+    fn new(max_capacity: f32, height: f32, ll: f32, hh: f32, sensor_reading: f32) -> Self {
+        TankMonitoring {
+            max_capacity,
+            height,
+            ll,
+            hh,
+            sensor_reading,
+        }
+    }
+    
+    // Konversi Meter ke Liter
+    fn meter_to_liter(&self, meter: f32) -> f32 {
+        (meter / self.height) * self.max_capacity
+    }
+    
+    // Status Inlet Valve & Pump
+    fn get_inlet_status(&self) -> (String, String) {
+        if self.sensor_reading <= self.ll {
+            ("OPEN".to_string(), "ON".to_string())
+        } else {
+            ("CLOSE".to_string(), "OFF".to_string())
+        }
+    }
+    
+    // Status Outlet Valve
+    fn get_outlet_status(&self) -> String {
+        if self.sensor_reading >= self.hh {
+            "OPEN".to_string()
+        } else {
+            "CLOSE".to_string()
+        }
+    }
+    
+    // Status Kondisi Tangki
+    fn get_condition(&self) -> String {
+        if self.sensor_reading >= self.hh {
+            "⚠⚠ HIGH HIGH (HH) - ALARM!".to_string()
+        } else if self.sensor_reading <= self.ll {
+            "⚠⚠ LOW LOW (LL) - ALARM!".to_string()
+        } else {
+            "✓✓ NORMAL".to_string()
+        }
+    }
+    
+    // Tampilkan Dashboard
+    fn display(&self) {
+        println!("\n{}", "=".repeat(60));
+        println!("{:^60}", "�� DASHBOARD TANGKI");
+        println!("{}", "=".repeat(60));
+        
+        println!("\n�� PARAMETER:");
+        println!("  Kapasitas: {:.2} L | Tinggi: {:.2} m", self.max_capacity, self.height);
+        println!("  LL: {:.2} m | HH: {:.2} m", self.ll, self.hh);
+        
+        let volume = self.meter_to_liter(self.sensor_reading);
+        let percentage = (self.sensor_reading / self.height) * 100.0;
+        
+        println!("\n�� DATA SAAT INI:");
+        println!("  Level Sensor: {:.2} m", self.sensor_reading);
+        println!("  Volume Air: {:.2} L", volume);
+        println!("  Persentase: {:.1}%", percentage);
+        
+        println!("\n⚙️ STATUS SISTEM:");
+        println!("  Kondisi: {}", self.get_condition());
+        let (inlet, pump) = self.get_inlet_status();
+        let outlet = self.get_outlet_status();
+        println!("  INLET: {} | PUMP: {} | OUTLET: {}", inlet, pump, outlet);
+        
+        println!("\n{}", "=".repeat(60));
+    }
+}
+
+// =============================================
+// FUNGSI HELPER
+// =============================================
+
+fn input_f32(prompt: &str) -> f32 {
+    loop {
+        print!("{}", prompt);
+        let _ = Write::flush(&mut io::stdout());
+        
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+        
+        match input.trim().parse::<f32>() {
+            Ok(value) if value >= 0.0 => return value,
+            _ => println!("⚠️ Angka tidak valid!\n"),
+        }
+    }
+}
+
+// ==========================================
+// MAIN PROGRAM
+// ==========================================
+
+fn main() {
+    println!("\n+==========================================================+");
+    println!("|   SISTEM MONITORING LEVEL TANGKI - VERSI LENGKAP       |");
+    println!("+==========================================================+\n");
+    
+    loop {
+        println!("\n�� MENU:");
+        println!("1. Input Parameter & Sensor");
+        println!("2. Lihat Dashboard");
+        println!("3. Keluar");
+        print!("Pilih (1-3): ");
+        let _ = Write::flush(&mut io::stdout());
+        
+        let mut choice = String::new();
+        io::stdin().read_line(&mut choice).unwrap();
+        
+        match choice.trim() {
+            "1" => {
+                let max_cap = input_f32("Kapasitas tangki (Liter): ");
+                let height = input_f32("Tinggi tangki (Meter): ");
+                let ll = input_f32("Batas Low Level - LL (Meter): ");
+                let hh = input_f32("Batas High High - HH (Meter): ");
+                let sensor = input_f32("Pembacaan sensor saat ini (Meter): ");
+                
+                let tank = TankMonitoring::new(max_cap, height, ll, hh, sensor);
+                tank.display();
+            }
+            "2" => println!("\n⚠️ Input data terlebih dahulu di menu 1!"),
+            "3" => {
+                println!("\n✅ Selesai!\n");
+                break;
+            }
+            _ => println!("❌ Pilihan tidak valid!\n"),
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Penjelasan Struktur Program}
+
+\subsubsection{Struct \texttt{Tank Monitoring}}
+Struktur data ini merepresentasikan tangki fisik. Di dalamnya terdapat lima field utama:
+\begin{itemize}
+    \item \texttt{max\_capacity}: Volume maksimum tangki (Liter).
+    \item \texttt{height}: Ketinggian fisik tangki (Meter).
+    \item \texttt{ll} (\textit{Low Low}): Ambang batas bawah untuk memicu pompa.
+    \item \texttt{hh} (\textit{High High}): Ambang batas atas untuk memicu pembuangan.
+    \item \texttt{sensor\_reading}: Data aktual dari sensor level.
+\end{itemize}
+
+\subsubsection{Implementasi Method (\texttt{impl})}
+Bagian ini berisi logika bisnis atau fungsi yang melekat pada objek tangki:
+
+\begin{enumerate}
+    \item \textbf{new()}: Berperan sebagai \textit{constructor} untuk membuat instansi baru dari tangki. Method ini menginisialisasi seluruh field dengan nilai yang diberikan pengguna.
+    
+    \item \textbf{meter\_to\_liter()}: Menggunakan perbandingan linier:
+    $$\text{Volume} = \left(\frac{\text{sensor}}{\text{height}}\right) \times \text{max\_capacity}$$
+    untuk menghitung volume berdasarkan pembacaan meter.
+    
+    \item \textbf{get\_inlet\_status()}: Logika kontrol yang mengembalikan tuple berisi status inlet valve dan pompa. Jika air $\leq$ LL, maka Inlet Valve dibuka (\textit{OPEN}) dan Pompa dinyalakan (\textit{ON}). Selain itu kedua aktuator akan tertutup/mati.
+    
+    \item \textbf{get\_outlet\_status()}: Menentukan status outlet valve. Jika air $\geq$ HH, maka outlet valve dibuka (\textit{OPEN}) untuk mencegah \textit{overflow}. Dalam kondisi lain, outlet tertutup.
+    
+    \item \textbf{get\_condition()}: Mengembalikan string yang mendeskripsikan kondisi tangki. Terdapat tiga status: HIGH HIGH ALARM, LOW LOW ALARM, atau NORMAL.
+    
+    \item \textbf{display()}: Menampilkan dashboard monitoring lengkap ke terminal dengan format yang terstruktur dan mudah dibaca.
+\end{enumerate}
+
+\subsubsection{Fungsi Helper \texttt{input\_f32}}
+Fungsi ini menangani validasi input dari pengguna. Menggunakan \textit{loop} dan \textit{pattern matching} (\texttt{match}) untuk memastikan pengguna memasukkan angka desimal positif. Jika pengguna memasukkan teks atau angka negatif, program akan menampilkan pesan kesalahan dan meminta input ulang tanpa mengalami \textit{crash}.
+
+\subsection{Logika Operasional Sistem}
+
+Sistem bekerja dengan prinsip \textit{State Monitoring}. Berikut adalah ringkasan logika keputusannya:
+
+\begin{table}[h]
+\centering
+\caption{Logika Kontrol Sistem Monitoring Tangki}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Kondisi Sensor} & \textbf{Status} & \textbf{Inlet/Pump} & \textbf{Outlet} \\ \hline
+Sensor $\leq$ LL & LOW LOW ALARM & OPEN / ON & CLOSE \\ \hline
+LL < Sensor < HH & NORMAL & CLOSE / OFF & CLOSE \\ \hline
+Sensor $\geq$ HH & HIGH HIGH ALARM & CLOSE / OFF & OPEN \\ \hline
+\end{tabular}
+\end{table}
+
+Logika ini memastikan bahwa:
+\begin{itemize}
+    \item Ketika level terlalu rendah (LL), sistem secara otomatis mengaktifkan pompa dan membuka inlet untuk mengisi tangki.
+    \item Ketika level normal, semua aktuator berada dalam keadaan tidak aktif.
+    \item Ketika level terlalu tinggi (HH), sistem membuka outlet valve untuk mengeluarkan kelebihan air dan mencegah overflow.
+\end{itemize}
+
+\section{Hasil Pengujian}
+
+Sistem telah diuji dengan skenario berikut:
+\begin{itemize}
+    \item \textbf{Konfigurasi Awal}: Kapasitas 10.000 L, Tinggi 5 m, Batas LL 1 m, HH 4.5 m.
+    
+    \item \textbf{Skenario 1 - Kondisi Normal}: Sensor membaca 3 m. Sistem menghitung volume 6.000 L (60%). Status: NORMAL. Semua valve tertutup, pompa OFF.
+    
+    \item \textbf{Skenario 2 - Kondisi Low Low}: Sensor membaca 0.8 m. Sistem menghitung volume 1.600 L (16%). Status: LOW LOW ALARM. Inlet valve OPEN, Pump ON, Outlet CLOSE.
+    
+    \item \textbf{Skenario 3 - Kondisi High High}: Sensor membaca 4.8 m. Sistem menghitung volume 9.600 L (96%). Status: HIGH HIGH ALARM. Inlet valve CLOSE, Pump OFF, Outlet OPEN.
+\end{itemize}
+
+Hasil pengujian menunjukkan bahwa semua kondisi logika bekerja sesuai spesifikasi yang dirancang.
+
+\section{Analisis Hasil}
+
+Implementasi sistem monitoring dalam Rust menunjukkan beberapa keunggulan signifikan:
+
+\begin{enumerate}
+    \item \textbf{Type Safety}: Rust memberikan jaminan tipe data yang ketat, sehingga mengurangi risiko error pada saat runtime. Penggunaan \texttt{f32} untuk semua parameter numerik memastikan konsistensi presisi.
+    
+    \item \textbf{Memory Safety}: Rust mengelola memori secara otomatis tanpa garbage collector, sehingga program berjalan dengan overhead minimal.
+    
+    \item \textbf{Input Validation}: Fungsi \texttt{input\_f32} menggunakan error handling yang robust dengan loop untuk memastikan hanya nilai valid yang diterima.
+    
+    \item \textbf{Code Readability}: Penggunaan \textit{struct} dan \textit{impl} membuat kode menjadi modular dan mudah dipahami. Setiap method memiliki tanggung jawab tunggal (Single Responsibility Principle).
+    
+    \item \textbf{Conversion Accuracy}: Konversi meter ke liter menggunakan formula linier yang akurat dan konsisten dengan perhitungan manual yang dilakukan pada studi kasus.
+\end{enumerate}
+
+\section{Kesimpulan}
+
+Pengembangan sistem monitoring level tangki berbasis Rust ini membuktikan bahwa:
+
+\begin{enumerate}
+    \item Konsep OOP sangat efektif untuk memodelkan aset fisik seperti tangki industri.
+    
+    \item Logika \textit{safety interlocking} yang diterapkan berhasil menjamin bahwa aktuator (inlet/outlet/pompa) akan merespons sesuai dengan kondisi level yang telah dianalisis.
+    
+    \item Rust sebagai bahasa pemrograman sistem modern mampu menghadirkan keseimbangan sempurna antara performa, keamanan, dan aksesibilitas untuk pengembangan aplikasi instrumentasi industri.
+    
+    \item Program yang telah dikembangkan dapat dengan mudah diperluas untuk integrasi dengan hardware sensor IoT, database logging, atau antarmuka web tanpa memerlukan restrukturisasi besar.
+\end{enumerate}
+
+\end{document}
