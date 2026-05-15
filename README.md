@@ -56,12 +56,12 @@ Pastikan kamu sudah menginstal **Rust** di komputermu. Jika belum, instal melalu
 
 ## Contoh Penggunaan
 
-![App Screenshot](/readme/foto%20ss/foto%20input.jpeg)
+![App Screenshot](/foto%20input.jpeg)
 
 
 **Hasil Output:**
 
 
 
-![App Screenshot](/readme/foto%20ss/foto%20output.jpeg)
+![App Screenshot](/foto%20output.jpeg)
 
