@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "program_rust"
+name = "Sistem_Pengukuran_dan_Kontrol_Level_Tanki_Industri_Dengan_Valve_Berbasis_Rust_kelompok_17"
 version = "0.1.0"
